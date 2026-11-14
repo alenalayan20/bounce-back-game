@@ -17,11 +17,17 @@ var _jump_buffer_left: float = 0.0
 var _death_tween: Tween
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var death_sound: AudioStreamPlayer = $DeathSound
+@onready var walk_sound: AudioStreamPlayer = $WalkSound
+@onready var jump_sound: AudioStreamPlayer = $JumpSound
 
 
 func _ready() -> void:
 	add_to_group("player")
 	sprite.play(&"idle")
+	var walking_stream := walk_sound.stream as AudioStreamMP3
+	if walking_stream != null:
+		walking_stream.loop = true
 
 
 func _physics_process(delta: float) -> void:
@@ -46,6 +52,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = jump_velocity
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
+		jump_sound.play()
 	elif not is_on_floor():
 		velocity.y = minf(velocity.y + gravity * delta, max_fall_speed)
 
@@ -55,6 +62,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_update_animation()
+	_update_walk_sound()
 	if global_position.y > 800.0:
 		die()
 
@@ -71,10 +79,23 @@ func _update_animation() -> void:
 		sprite.play(animation_name)
 
 
+func _update_walk_sound() -> void:
+	# Actual velocity avoids playing footsteps while pushing into a wall.
+	var walking := not dead and not finished and is_on_floor() and absf(get_real_velocity().x) > 10.0
+	if walking:
+		if not walk_sound.playing:
+			walk_sound.play()
+	elif walk_sound.playing:
+		walk_sound.stop()
+
+
 func die() -> void:
 	if dead or finished:
 		return
 	dead = true
+	walk_sound.stop()
+	jump_sound.stop()
+	death_sound.play()
 	velocity = Vector2.ZERO
 	_coyote_left = 0.0
 	_jump_buffer_left = 0.0
@@ -86,6 +107,9 @@ func die() -> void:
 
 
 func respawn(at: Vector2) -> void:
+	walk_sound.stop()
+	jump_sound.stop()
+	# Let the short death clip finish naturally across the quick respawn.
 	if _death_tween != null and _death_tween.is_valid():
 		_death_tween.kill()
 	global_position = at
@@ -105,6 +129,8 @@ func finish() -> void:
 	if dead or finished:
 		return
 	finished = true
+	walk_sound.stop()
+	jump_sound.stop()
 	velocity = Vector2.ZERO
 	_jump_buffer_left = 0.0
 	sprite.play(&"idle")

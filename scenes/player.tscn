@@ -1,11 +1,14 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://resources/side_frames.tres" id="2_frames"]
+[ext_resource type="AudioStream" path="res://audio/death.mp3" id="3_death"]
+[ext_resource type="AudioStream" path="res://audio/walk.mp3" id="4_walk"]
+[ext_resource type="AudioStream" path="res://audio/jump.mp3" id="5_jump"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
-radius = 12.0
-height = 52.0
+radius = 13.0
+height = 60.0
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -15,7 +18,7 @@ script = ExtResource("1_player")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(0.165, 0.165)
+scale = Vector2(0.19, 0.19)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle"
 autoplay = "idle"
@@ -23,5 +26,17 @@ centered = false
 offset = Vector2(-200, -420)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -27)
+position = Vector2(0, -31)
 shape = SubResource("CapsuleShape2D_player")
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_death")
+volume_db = 16.0
+
+[node name="WalkSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_walk")
+volume_db = 12.0
+
+[node name="JumpSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_jump")
+volume_db = -4.0
