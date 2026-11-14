@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bhgcvpyl1dqd4"]
+
+[ext_resource type="SpriteFrames" uid="uid://wpiapmpgy6le" path="res://art/subjects/animations/saw/saw.tres" id="1_rgadg"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=1910277979]
+sprite_frames = ExtResource("1_rgadg")
+animation = &"saw"

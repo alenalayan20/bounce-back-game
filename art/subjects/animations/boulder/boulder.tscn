@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://canubyxm5ppcs"]
+
+[ext_resource type="SpriteFrames" uid="uid://ln348qknbdd1" path="res://art/subjects/animations/boulder/boulder.tres" id="1_vqasr"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=131391977]
+sprite_frames = ExtResource("1_vqasr")
+frame_progress = 0.9948046
