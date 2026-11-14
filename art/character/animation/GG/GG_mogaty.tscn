@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://drcanul0kxwlx"]
+
+[ext_resource type="SpriteFrames" uid="uid://5f4i7fs03pnj" path="res://art/character/animation/GG/GG_mogaty.tres" id="1_wg5vw"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=891124958]
+position = Vector2(504, 29)
+sprite_frames = ExtResource("1_wg5vw")
+frame_progress = 0.2858075
