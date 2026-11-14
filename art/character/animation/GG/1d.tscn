@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://brt4mitb3yoc"]
-
-[ext_resource type="SpriteFrames" uid="uid://sapphf43pvit" path="res://art/character/animation/GG/1d.tres" id="1_bstql"]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=1803473703]
-sprite_frames = ExtResource("1_bstql")
-frame_progress = 0.007727692

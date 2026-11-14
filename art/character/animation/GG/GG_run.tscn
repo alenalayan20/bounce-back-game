@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://f7up04tnqmdp"]
-
-[ext_resource type="SpriteFrames" uid="uid://dvgg07adngyt4" path="res://art/character/animation/GG/GG_run.tres" id="1_hswiq"]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=984861520]
-sprite_frames = ExtResource("1_hswiq")
-frame_progress = 0.85590005

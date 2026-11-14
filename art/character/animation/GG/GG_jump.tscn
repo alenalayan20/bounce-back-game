@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://bvur7b57g6n40"]
-
-[ext_resource type="SpriteFrames" uid="uid://b1qy36lcwx5xy" path="res://art/character/animation/GG/GG_jump.tres" id="1_eap65"]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=315238996]
-sprite_frames = ExtResource("1_eap65")
-frame_progress = 0.052303884
