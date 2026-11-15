@@ -6,6 +6,9 @@ extends Node2D
 
 var elapsed_time: float = 0.0
 
+@export var steam_origins: PackedVector2Array = PackedVector2Array([Vector2(384.0, 112.0), Vector2(350.0, 312.0)])
+@export var steam_directions: PackedFloat32Array = PackedFloat32Array([1.0, -1.0])
+
 
 func _process(delta: float) -> void:
 	elapsed_time += delta
@@ -13,8 +16,9 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	_draw_steam(Vector2(384.0, 112.0), 1.0, 0.0)
-	_draw_steam(Vector2(350.0, 312.0), -1.0, 1.7)
+	for i in range(steam_origins.size()):
+		var direction: float = steam_directions[i] if i < steam_directions.size() else 1.0
+		_draw_steam(steam_origins[i], direction, float(i) * 1.7)
 	draw_set_transform(Vector2.ZERO)
 
 

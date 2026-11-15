@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/surprise_spikes.gd" id="1_trap"]
+[ext_resource type="Texture2D" path="res://art/levels/level_01_closed.png" id="2_spike_art"]
+
+[sub_resource type="AtlasTexture" id="TwoSpikes"]
+atlas = ExtResource("2_spike_art")
+region = Rect2(477, 564, 44, 20)
+
+[sub_resource type="RectangleShape2D" id="LandingShape"]
+size = Vector2(140, 10)
+
+[sub_resource type="RectangleShape2D" id="CenterShape"]
+size = Vector2(44, 100)
+
+[node name="SurpriseSpikes" type="Node2D"]
+script = ExtResource("1_trap")
+
+[node name="Visual" type="Node2D" parent="."]
+visible = false
+
+[node name="Spikes" type="Sprite2D" parent="Visual"]
+position = Vector2(-22, -24)
+scale = Vector2(1, 1.2)
+texture_filter = 2
+texture = SubResource("TwoSpikes")
+centered = false
+
+[node name="Danger" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+monitorable = false
+
+[node name="LeftSpike" type="CollisionPolygon2D" parent="Danger"]
+polygon = PackedVector2Array(-19, -1, -11, -21, -3, -1)
+
+[node name="RightSpike" type="CollisionPolygon2D" parent="Danger"]
+polygon = PackedVector2Array(3, -1, 11, -21, 19, -1)
+
+[node name="LandingTrigger" type="Area2D" parent="."]
+position = Vector2(0, -1)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LandingTrigger"]
+shape = SubResource("LandingShape")
+
+[node name="CenterTrigger" type="Area2D" parent="."]
+position = Vector2(0, -50)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CenterTrigger"]
+shape = SubResource("CenterShape")
+
+[node name="TriggerPoint" type="Marker2D" parent="."]
+gizmo_extents = 14.0

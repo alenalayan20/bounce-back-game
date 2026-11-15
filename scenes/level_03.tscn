@@ -1,0 +1,137 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/level_01.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://art/levels/level_03.png" id="2_background"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/hazard.gd" id="4_hazard"]
+[ext_resource type="PackedScene" path="res://scenes/moving_saw.tscn" id="5_saw"]
+[ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
+[ext_resource type="Shader" path="res://shaders/level_background.gdshader" id="7_shader"]
+[ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="8_lights"]
+
+[sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
+shader = ExtResource("7_shader")
+shader_parameter/door_scale = 1.0
+shader_parameter/chain_sway_pixels = 8.5
+shader_parameter/chain_speed = 0.7
+shader_parameter/long_chain_bounds = Vector4(1153, 107, 1199, 290)
+shader_parameter/short_chain_bounds = Vector4(1197, 103, 1240, 259)
+shader_parameter/hide_baked_saw = true
+
+[sub_resource type="RectangleShape2D" id="Ground"]
+size = Vector2(1280, 196)
+
+[sub_resource type="RectangleShape2D" id="Boundary"]
+size = Vector2(20, 1200)
+
+[sub_resource type="RectangleShape2D" id="ExitShape"]
+size = Vector2(74, 134)
+
+[sub_resource type="RectangleShape2D" id="FallShape"]
+size = Vector2(1600, 60)
+
+[node name="Level03" type="Node2D"]
+script = ExtResource("1_controller")
+level_number = 3
+
+[node name="Background" type="Sprite2D" parent="."]
+material = SubResource("BackgroundMaterial")
+texture_filter = 2
+texture = ExtResource("2_background")
+centered = false
+
+[node name="WindowLights" parent="." instance=ExtResource("8_lights")]
+window_origins = PackedVector2Array(306, 292, 651, 292, 974, 292)
+
+[node name="World" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="Ground" type="CollisionShape2D" parent="World"]
+position = Vector2(640, 622)
+shape = SubResource("Ground")
+
+[node name="LeftBoundary" type="CollisionShape2D" parent="World"]
+position = Vector2(-10, 360)
+shape = SubResource("Boundary")
+
+[node name="RightBoundary" type="CollisionShape2D" parent="World"]
+position = Vector2(1290, 360)
+shape = SubResource("Boundary")
+
+[node name="SpikesLeft" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="Spike1" type="CollisionPolygon2D" parent="SpikesLeft"]
+polygon = PackedVector2Array(193, 522, 207, 491, 221, 522)
+
+[node name="Spike2" type="CollisionPolygon2D" parent="SpikesLeft"]
+polygon = PackedVector2Array(225, 522, 239, 491, 253, 522)
+
+[node name="SpikesMiddle" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="Spike1" type="CollisionPolygon2D" parent="SpikesMiddle"]
+polygon = PackedVector2Array(410, 522, 424, 491, 438, 522)
+
+[node name="Spike2" type="CollisionPolygon2D" parent="SpikesMiddle"]
+polygon = PackedVector2Array(442, 522, 456, 491, 470, 522)
+
+[node name="Spike3" type="CollisionPolygon2D" parent="SpikesMiddle"]
+polygon = PackedVector2Array(475, 522, 489, 491, 503, 522)
+
+[node name="SpikesRight" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="Spike1" type="CollisionPolygon2D" parent="SpikesRight"]
+polygon = PackedVector2Array(649, 522, 663, 491, 677, 522)
+
+[node name="Spike2" type="CollisionPolygon2D" parent="SpikesRight"]
+polygon = PackedVector2Array(681, 522, 695, 491, 709, 522)
+
+[node name="MovingSaw" parent="." instance=ExtResource("5_saw")]
+position = Vector2(858, 524)
+
+[node name="FloorForeground" type="Sprite2D" parent="."]
+position = Vector2(0, 524)
+texture_filter = 2
+texture = ExtResource("2_background")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 524, 1280, 196)
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(54, 524)
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(54, 524)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1175, 457)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
+shape = SubResource("ExitShape")
+
+[node name="FallZone" type="Area2D" parent="."]
+position = Vector2(640, 790)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FallZone"]
+shape = SubResource("FallShape")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

@@ -1,0 +1,200 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/level_01.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://art/levels/level_02.png" id="2_background"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/hazard.gd" id="4_hazard"]
+[ext_resource type="PackedScene" path="res://scenes/surprise_spikes.tscn" id="5_trap"]
+[ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ambience.tscn" id="7_ambience"]
+[ext_resource type="Shader" path="res://shaders/level_background.gdshader" id="8_shader"]
+[ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="9_lights"]
+
+[sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
+shader = ExtResource("8_shader")
+shader_parameter/door_scale = 1.0
+shader_parameter/chain_sway_pixels = 8.5
+shader_parameter/chain_speed = 0.7
+shader_parameter/long_chain_bounds = Vector4(1135, 57, 1181, 239)
+shader_parameter/short_chain_bounds = Vector4(1187, 57, 1233, 197)
+
+[sub_resource type="RectangleShape2D" id="StartPlatform"]
+size = Vector2(222, 311)
+
+[sub_resource type="RectangleShape2D" id="Platform"]
+size = Vector2(140, 18)
+
+[sub_resource type="RectangleShape2D" id="Ground"]
+size = Vector2(1280, 160)
+
+[sub_resource type="RectangleShape2D" id="Boundary"]
+size = Vector2(20, 1200)
+
+[sub_resource type="RectangleShape2D" id="ExitShape"]
+size = Vector2(70, 144)
+
+[sub_resource type="RectangleShape2D" id="FallZone"]
+size = Vector2(1600, 60)
+
+[sub_resource type="RectangleShape2D" id="SpikeBases"]
+size = Vector2(696, 5)
+
+[node name="Level02" type="Node2D"]
+script = ExtResource("1_controller")
+level_number = 2
+next_level_path = "res://scenes/level_03.tscn"
+
+[node name="Background" type="Sprite2D" parent="."]
+material = SubResource("BackgroundMaterial")
+texture_filter = 2
+texture = ExtResource("2_background")
+centered = false
+
+[node name="LevelAmbience" parent="." instance=ExtResource("7_ambience")]
+steam_origins = PackedVector2Array(269, 210)
+steam_directions = PackedFloat32Array(1)
+
+[node name="WindowLights" parent="." instance=ExtResource("9_lights")]
+window_origins = PackedVector2Array(360, 207, 660, 207, 979, 207)
+
+[node name="World" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="StartPlatform" type="CollisionShape2D" parent="World"]
+position = Vector2(111, 404.5)
+shape = SubResource("StartPlatform")
+
+[node name="Platform1" type="CollisionShape2D" parent="World"]
+position = Vector2(414, 314)
+shape = SubResource("Platform")
+
+[node name="Platform2" type="CollisionShape2D" parent="World"]
+position = Vector2(642, 367)
+shape = SubResource("Platform")
+
+[node name="Platform3" type="CollisionShape2D" parent="World"]
+position = Vector2(887, 292)
+shape = SubResource("Platform")
+
+[node name="Ground" type="CollisionShape2D" parent="World"]
+position = Vector2(640, 640)
+shape = SubResource("Ground")
+
+[node name="LeftBoundary" type="CollisionShape2D" parent="World"]
+position = Vector2(-10, 360)
+shape = SubResource("Boundary")
+
+[node name="RightBoundary" type="CollisionShape2D" parent="World"]
+position = Vector2(1290, 360)
+shape = SubResource("Boundary")
+
+[node name="GroundSpikes" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="SpikeBases" type="CollisionShape2D" parent="GroundSpikes"]
+position = Vector2(579, 558.5)
+shape = SubResource("SpikeBases")
+
+[node name="Spike1" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(231.5, 558, 242.0, 535, 252.5, 558)
+
+[node name="Spike2" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(262.1, 558, 272.6, 535, 283.1, 558)
+
+[node name="Spike3" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(292.7, 558, 303.2, 535, 313.7, 558)
+
+[node name="Spike4" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(323.3, 558, 333.8, 535, 344.3, 558)
+
+[node name="Spike5" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(353.9, 558, 364.4, 535, 374.9, 558)
+
+[node name="Spike6" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(384.5, 558, 395.0, 535, 405.5, 558)
+
+[node name="Spike7" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(415.1, 558, 425.6, 535, 436.1, 558)
+
+[node name="Spike8" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(445.7, 558, 456.2, 535, 466.7, 558)
+
+[node name="Spike9" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(476.3, 558, 486.8, 535, 497.3, 558)
+
+[node name="Spike10" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(506.9, 558, 517.4, 535, 527.9, 558)
+
+[node name="Spike11" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(537.5, 558, 548.0, 535, 558.5, 558)
+
+[node name="Spike12" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(568.1, 558, 578.6, 535, 589.1, 558)
+
+[node name="Spike13" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(598.7, 558, 609.2, 535, 619.7, 558)
+
+[node name="Spike14" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(629.3, 558, 639.8, 535, 650.3, 558)
+
+[node name="Spike15" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(659.9, 558, 670.4, 535, 680.9, 558)
+
+[node name="Spike16" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(690.5, 558, 701.0, 535, 711.5, 558)
+
+[node name="Spike17" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(721.1, 558, 731.6, 535, 742.1, 558)
+
+[node name="Spike18" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(751.7, 558, 762.2, 535, 772.7, 558)
+
+[node name="Spike19" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(782.3, 558, 792.8, 535, 803.3, 558)
+
+[node name="Spike20" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(812.9, 558, 823.4, 535, 833.9, 558)
+
+[node name="Spike21" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(843.5, 558, 854.0, 535, 864.5, 558)
+
+[node name="Spike22" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(874.1, 558, 884.6, 535, 895.1, 558)
+
+[node name="Spike23" type="CollisionPolygon2D" parent="GroundSpikes"]
+polygon = PackedVector2Array(904.7, 558, 915.2, 535, 925.7, 558)
+
+[node name="SurpriseSpikes" parent="." instance=ExtResource("5_trap")]
+position = Vector2(887, 283)
+
+[node name="FallZone" type="Area2D" parent="."]
+position = Vector2(640, 790)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("4_hazard")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FallZone"]
+shape = SubResource("FallZone")
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(104, 249)
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(104, 249)
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1192, 488)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
+shape = SubResource("ExitShape")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+

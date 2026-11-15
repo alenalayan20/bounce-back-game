@@ -4,6 +4,9 @@ shader_type canvas_item;
 uniform float door_scale : hint_range(1.0, 1.3) = 1.15;
 uniform float chain_sway_pixels : hint_range(0.0, 12.0) = 8.5;
 uniform float chain_speed : hint_range(0.1, 1.0) = 0.7;
+uniform vec4 long_chain_bounds = vec4(1078.0, 69.0, 1124.0, 282.0);
+uniform vec4 short_chain_bounds = vec4(1125.0, 69.0, 1167.0, 242.0);
+uniform bool hide_baked_saw = false;
 
 varying vec4 item_modulate;
 
@@ -26,10 +29,10 @@ void fragment() {
 
 	// The links are painted into the image. A narrow UV bend moves them
 	// in a visible, slow arc, anchored to the overhead pipe.
-	float long_chain = strip_mask(p, vec4(1078.0, 69.0, 1124.0, 282.0));
-	float short_chain = strip_mask(p, vec4(1125.0, 69.0, 1167.0, 242.0));
-	float long_weight = pow(clamp((p.y - 72.0) / 200.0, 0.0, 1.0), 1.3);
-	float short_weight = pow(clamp((p.y - 72.0) / 163.0, 0.0, 1.0), 1.3);
+	float long_chain = strip_mask(p, long_chain_bounds);
+	float short_chain = strip_mask(p, short_chain_bounds);
+	float long_weight = pow(clamp((p.y - long_chain_bounds.y - 3.0) / (long_chain_bounds.w - long_chain_bounds.y - 13.0), 0.0, 1.0), 1.3);
+	float short_weight = pow(clamp((p.y - short_chain_bounds.y - 3.0) / (short_chain_bounds.w - short_chain_bounds.y - 13.0), 0.0, 1.0), 1.3);
 	source.x -= long_chain * long_weight * sin(TIME * chain_speed) * chain_sway_pixels;
 	source.x -= short_chain * short_weight * sin(TIME * chain_speed * 0.83 + 1.7) * chain_sway_pixels * 0.8;
 
@@ -41,5 +44,16 @@ void fragment() {
 		* (1.0 - smoothstep(585.0, 588.0, p.y));
 	vec2 door_source = vec2(1186.0, 588.0) + (p - vec2(1186.0, 588.0)) / door_scale;
 	source = mix(source, door_source, door_mask);
-	COLOR = texture(TEXTURE, source / size) * item_modulate;
+	vec4 sampled = texture(TEXTURE, source / size);
+	if (hide_baked_saw) {
+		float saw_mask = smoothstep(820.0, 827.0, p.x)
+			* (1.0 - smoothstep(889.0, 898.0, p.x))
+			* smoothstep(486.0, 493.0, p.y)
+			* (1.0 - step(524.0, p.y));
+		// Replace only the stationary blade painted into level 3, preserving
+		// the floor and yellow machine plate underneath the moving blade.
+		vec4 clean_wall = texture(TEXTURE, vec2(p.x + 94.0, p.y) / size);
+		sampled = mix(sampled, clean_wall, saw_mask);
+	}
+	COLOR = sampled * item_modulate;
 }
