@@ -1,0 +1,139 @@
+# Web build and itch.io deploy ("Prison Break").
+# - pull_request: export the Web build and attach it to the run as an artifact (no deploy).
+# - push of a tag v*: export and push to itch.io with butler.
+# - workflow_dispatch: the same by hand, from any branch; deploy only if "deploy" is ticked.
+name: Deploy
+
+on:
+  pull_request:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Push the build to itch.io
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: 4.7.2
+      # itch.io page: https://<user>.itch.io/prison-break -> "<user>/prison-break".
+      # A repository variable ITCH_GAME, if set, takes precedence.
+      ITCH_GAME: ${{ vars.ITCH_GAME  'alenalayan20/prison-break' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # for git describe --tags
+
+      - name: Cache Godot and Web templates
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-web-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      # The full templates archive is ~1 GB; only the Web ones are kept in the cache.
+      - name: Download Godot and Web templates
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          mkdir -p ~/godot
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          tdir=~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mkdir -p "$tdir"
+          unzip -q -j templates.tpz 'templates/web_nothreads_*' 'templates/version.txt' -d "$tdir"
+          rm godot.zip templates.tpz
+          ls -la "$tdir"
+
+      # The repo has no export_presets.cfg: create a "Web" preset (no threads, so it
+      # works on itch.io without SharedArrayBuffer). A committed file is used as is.
+      - name: Ensure Web export preset
+        run: |
+          if [ -f export_presets.cfg ]; then
+            grep -q 'name="Web"' export_presets.cfg  { echo "::error::export_presets.cfg has no preset named Web"; exit 1; }
+            exit 0
+          fi
+          cat > export_presets.cfg <<'EOF'
+          [preset.0]
+
+          name="Web"
+          platform="Web"
+          runnable=true
+          advanced_options=false
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="builds/web/index.html"
+          patches=PackedStringArray()
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          seed=0
+          encrypt_pck=false
+          encrypt_directory=false
+          script_export_mode=2
+
+          [preset.0.options]
+
+          custom_template/debug=""
+          custom_template/release=""
+          variant/extensions_support=false
+          variant/thread_support=false
+          vram_texture_compression/for_desktop=true
+          vram_texture_compression/for_mobile=false
+          html/export_icon=true
+          html/custom_html_shell=""
+          html/head_include=""
+          html/canvas_resize_policy=2
+          html/focus_canvas_on_start=true
+          html/experimental_virtual_keyboard=false
+          progressive_web_app/enabled=false
+          EOF
+
+      - name: Import project
+        run: |
+          rm -rf .godot
+          ~/godot/godot --headless --path . --import
+
+      - name: Export Web build
+        run: |
+          mkdir -p builds/web
+          ~/godot/godot --headless --path . --export-release "Web" builds/web/index.html
+          test -s builds/web/index.pck  { echo "::error::Export produced no index.pck"; exit 1; }
+          ls -la builds/web
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-${{ github.sha }}
+          path: builds/web
+          retention-days: 14
+
+      - name: Push to itch.io
+        if: startsWith(github.ref, 'refs/tags/v')  inputs.deploy
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          [ -n "$BUTLER_API_KEY" ] || { echo "::error::Secret BUTLER_API_KEY is not set"; exit 1; }
+          case "$ITCH_GAME" in
+            *'<'*|'') echo "::error::Set ITCH_GAME (user/prison-break) in the workflow or as a repository variable"; exit 1 ;;
+          esac
+          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d ~/butler
+          chmod +x ~/butler/butler
+          version=$(git describe --tags --always)
+          ~/butler/butler push builds/web "$ITCH_GAME:web" --userversion "$version"
+          ~/butler/butler status "$ITCH_GAME:web"
