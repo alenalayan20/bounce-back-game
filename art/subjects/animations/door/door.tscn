@@ -2,6 +2,6 @@
 
 [ext_resource type="SpriteFrames" uid="uid://dl45otgfq3u5u" path="res://art/subjects/animations/door/door.tres" id="1_tdjej"]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=794807962]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=1524143099]
 sprite_frames = ExtResource("1_tdjej")
-frame_progress = 0.77546763
+frame_progress = 0.34822452
