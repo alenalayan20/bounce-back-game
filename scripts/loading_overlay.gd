@@ -94,7 +94,7 @@ func _build_ui() -> void:
 	_runner.centered = false
 	_runner.offset = Vector2(-200, -420)
 	_runner.position = Vector2(160, 92)
-	_runner.scale = Vector2(0.19, 0.19)
+	_runner.scale = Vector2(0.205, 0.205)
 	_runner.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_content.add_child(_runner)
 	_loading_label = Label.new()

@@ -15,6 +15,7 @@ const LEVEL_PATHS := [
 	"res://scenes/level_02.tscn",
 	"res://scenes/level_03.tscn",
 	"res://scenes/level_04.tscn",
+	"res://scenes/level_05.tscn",
 ]
 const LOADING_SCREEN_PATH := "res://scenes/loading_overlay.tscn"
 const MUSIC_BASE_DB: float = -2.0

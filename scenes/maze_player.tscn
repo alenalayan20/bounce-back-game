@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scripts/footstep_player.gd" id="4_steps_script"]
 
 [sub_resource type="CircleShape2D" id="BodyShape"]
-radius = 17.0
+radius = 18.0
 
 [node name="MazePlayer" type="CharacterBody2D"]
 motion_mode = 1
@@ -16,7 +16,7 @@ script = ExtResource("1_controller")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
-scale = Vector2(0.18, 0.18)
+scale = Vector2(0.194, 0.194)
 sprite_frames = ExtResource("2_frames")
 animation = &"1d_run"
 

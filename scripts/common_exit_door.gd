@@ -11,7 +11,8 @@ const PARTS: Array[Rect2i] = [
 	Rect2i(1168, 383, 47, 24), # red glass and its metal housing
 ]
 
-@export_range(1, 4) var level_number: int = 1
+@export_range(1, 5) var level_number: int = 1
+@export_range(0.75, 1.1, 0.01) var display_scale: float = 0.92
 
 static var _textures: Dictionary[int, ImageTexture] = {}
 
@@ -19,7 +20,7 @@ static var _textures: Dictionary[int, ImageTexture] = {}
 func _ready() -> void:
 	var background := get_parent().get_node("Background") as Sprite2D
 	var anchor := Vector2(1186, 588)
-	var art_scale: float = 1.0
+	var art_scale: float = display_scale
 	match level_number:
 		2:
 			anchor = SOURCE_ANCHOR
@@ -27,8 +28,10 @@ func _ready() -> void:
 			anchor = Vector2(1175, 524)
 		4:
 			anchor = Vector2(1534, 900)
-			art_scale = 0.62
-	if level_number != 2:
+			art_scale = 0.62 * display_scale
+		5:
+			anchor = Vector2(1158, 620)
+	if level_number != 2 or not is_equal_approx(art_scale, 1.0):
 		if not _textures.has(level_number):
 			var original: Image = background.texture.get_image()
 			original.convert(Image.FORMAT_RGBA8)
@@ -59,6 +62,12 @@ func _clear_old_exit(image: Image, original: Image) -> void:
 			_clone_wall(image, original, Rect2i(1151, 501, 72, 87), Vector2i(-180, 0), 3.0)
 			_heal_brick_rows(image, Rect2i(1119, 521, 33, 34), 4.0)
 			_clone_wall(image, original, Rect2i(1166, 477, 40, 22), Vector2i(-130, 0), 3.0)
+		2:
+			# Clear the source door as well when displaying it at a smaller size.
+			_remove_red_spill(image, original, Rect2i(1084, 354, 173, 206))
+			_heal_brick_rows(image, Rect2i(1140, 410, 105, 150), 4.0)
+			_heal_brick_rows(image, Rect2i(1105, 451, 31, 38), 3.0)
+			_heal_brick_rows(image, Rect2i(1165, 381, 53, 28), 3.0)
 		3:
 			_remove_red_spill(image, original, Rect2i(1101, 326, 154, 198))
 			_heal_brick_rows(image, Rect2i(1119, 383, 111, 141), 4.0)
@@ -79,6 +88,12 @@ func _clear_old_exit(image: Image, original: Image) -> void:
 					floor_pixel.r += 0.055
 					floor_pixel.g += 0.006
 					image.set_pixel(x, y, image.get_pixel(x, y).lerp(floor_pixel, alpha))
+		5:
+			# Remove the original short exit and lamp before placing the shared
+			# level-two frame. All samples stay on this level's brick courses.
+			_remove_red_spill(image, original, Rect2i(1080, 448, 160, 172))
+			_heal_brick_rows(image, Rect2i(1112, 506, 97, 114), 4.0)
+			_heal_brick_rows(image, Rect2i(1137, 483, 44, 25), 3.0)
 
 
 func _remove_red_spill(image: Image, original: Image, region: Rect2i) -> void:
