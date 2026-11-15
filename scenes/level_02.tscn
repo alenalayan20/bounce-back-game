@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_01.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://art/levels/level_02.png" id="2_background"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://scripts/hazard.gd" id="4_hazard"]
 [ext_resource type="PackedScene" path="res://scenes/surprise_spikes.tscn" id="5_trap"]
 [ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
-[ext_resource type="PackedScene" path="res://scenes/ambience.tscn" id="7_ambience"]
 [ext_resource type="Shader" path="res://shaders/level_background.gdshader" id="8_shader"]
 [ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="9_lights"]
 [ext_resource type="Script" path="res://scripts/door_warning_lights.gd" id="10_warning"]
@@ -52,10 +51,6 @@ material = SubResource("BackgroundMaterial")
 texture_filter = 2
 texture = ExtResource("2_background")
 centered = false
-
-[node name="LevelAmbience" parent="." instance=ExtResource("7_ambience")]
-steam_origins = PackedVector2Array(269, 210)
-steam_directions = PackedFloat32Array(1)
 
 [node name="WindowLights" parent="." instance=ExtResource("9_lights")]
 window_origins = PackedVector2Array(360, 207, 660, 207, 979, 207)

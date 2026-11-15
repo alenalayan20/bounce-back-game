@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_01.gd" id="1_level"]
 [ext_resource type="Texture2D" path="res://art/levels/level_01_closed.png" id="2_closed"]
@@ -7,7 +7,6 @@
 [ext_resource type="Script" path="res://scripts/hazard.gd" id="5_hazard"]
 [ext_resource type="Script" path="res://scripts/hidden_pit.gd" id="6_pit"]
 [ext_resource type="Shader" path="res://shaders/level_background.gdshader" id="7_background_shader"]
-[ext_resource type="PackedScene" path="res://scenes/ambience.tscn" id="8_ambience"]
 [ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="10_lights"]
 [ext_resource type="Script" path="res://scripts/door_warning_lights.gd" id="11_warning"]
@@ -60,8 +59,6 @@ material = SubResource("BackgroundMaterial")
 texture_filter = 2
 texture = ExtResource("2_closed")
 centered = false
-
-[node name="LevelAmbience" parent="." instance=ExtResource("8_ambience")]
 
 [node name="WindowLights" parent="." instance=ExtResource("10_lights")]
 

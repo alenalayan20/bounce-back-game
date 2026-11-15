@@ -7,6 +7,10 @@ extends Node2D
 @export_range(0.6, 1.8, 0.05) var brightness: float = 1.25
 @export_range(2.0, 14.0, 0.5) var aim_speed: float = 8.0
 
+## The light cookie is generated in GDScript, which is slow in web builds;
+## 128 px is enough because the light texture is filtered and scaled up.
+const TORCH_TEXTURE_SIZE := 128
+
 @onready var light: PointLight2D = $Light
 @onready var darkness: CanvasModulate = $Darkness
 
@@ -17,7 +21,7 @@ var _target: Node2D
 func _ready() -> void:
 	darkness.color = Color.BLACK
 	light.texture = _make_torch_texture()
-	light.texture_scale = flashlight_range * 2.0 / 512.0
+	light.texture_scale = flashlight_range * 2.0 / float(TORCH_TEXTURE_SIZE)
 	light.energy = brightness
 	_find_target()
 	_snap_to_target()
@@ -72,13 +76,14 @@ func _snap_to_target() -> void:
 func _make_torch_texture() -> ImageTexture:
 	# This is a light cookie, generated once. Its black pixels emit no light.
 	# Keeping the world at CanvasModulate.BLACK also hides painted-in lamps.
-	var image := Image.create(512, 512, false, Image.FORMAT_RGBA8)
+	var image := Image.create(TORCH_TEXTURE_SIZE, TORCH_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)
 	var inner_cosine: float = cos(deg_to_rad(cone_angle_degrees * 0.34))
 	var outer_cosine: float = cos(deg_to_rad(cone_angle_degrees * 0.65))
 	var halo_ratio: float = body_halo_radius / flashlight_range
-	for y in range(512):
-		for x in range(512):
-			var p := (Vector2(x, y) + Vector2(0.5, 0.5) - Vector2(256, 256)) / 256.0
+	var half: float = TORCH_TEXTURE_SIZE * 0.5
+	for y in range(TORCH_TEXTURE_SIZE):
+		for x in range(TORCH_TEXTURE_SIZE):
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5) - Vector2(half, half)) / half
 			var distance: float = p.length()
 			var forward_dot: float = p.y / maxf(distance, 0.0001)
 			var angular: float = smoothstep(outer_cosine, inner_cosine, forward_dot)
