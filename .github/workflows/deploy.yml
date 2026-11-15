@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GODOT_VERSION: 4.7.2
-      # itch.io page: https://<user>.itch.io/prison-break -> "<user>/prison-break".
+      # itch.io page: https://real-school.itch.io/prison-brake -> "real-school/prison-brake".
       # A repository variable ITCH_GAME, if set, takes precedence.
-      ITCH_GAME: ${{ vars.ITCH_GAME || 'real-school/prison-break' }}
+      ITCH_GAME: ${{ vars.ITCH_GAME || 'real-school/prison-brake' }}
     steps:
       - uses: actions/checkout@v4
         with:
