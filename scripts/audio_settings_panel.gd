@@ -12,6 +12,13 @@ var game_value: Label
 var music_value: Label
 var close_button: Button
 var done_button: Button
+var language_selector: OptionButton
+var header_label: Label
+var audio_label: Label
+var game_label: Label
+var music_label: Label
+var language_label: Label
+var helper_label: Label
 
 var _updating: bool = false
 var _fallback_game_volume: float = 0.8
@@ -22,6 +29,8 @@ var _previous_focus: WeakRef
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_ui()
+	Language.language_changed.connect(_refresh_language)
+	_refresh_language()
 	var session := _session()
 	if session != null and session.has_signal("settings_changed"):
 		session.settings_changed.connect(_sync_from_session)
@@ -108,12 +117,21 @@ func _build_ui() -> void:
 	add_child(center)
 	var content := Control.new()
 	content.name = "Content"
-	content.custom_minimum_size = Vector2(900, 420)
+	content.custom_minimum_size = Vector2(900, 480)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(content)
 
 	_add_art(content, "Header", Rect2(110, 76, 545, 138), Vector2(14, 0), Vector2(327, 83))
 	_add_art(content, "AudioPanel", Rect2(108, 389, 1453, 309), Vector2(14, 110), Vector2(872, 185.4))
+	# Keep the supplied frame and icons, replacing baked English with live text.
+	_add_patch(content, "HeaderTextPatch", Rect2(105, 15, 213, 51))
+	_add_patch(content, "AudioTextPatch", Rect2(129, 122, 233, 40))
+	_add_patch(content, "GameTextPatch", Rect2(157, 175, 209, 40))
+	_add_patch(content, "MusicTextPatch", Rect2(157, 224, 209, 41))
+	header_label = _make_label("SettingsTitle", content, Vector2(109, 13), Vector2(207, 55), 32)
+	audio_label = _make_label("AudioLabel", content, Vector2(134, 120), Vector2(227, 44), 30)
+	game_label = _make_label("GameLabel", content, Vector2(162, 175), Vector2(204, 40), 22)
+	music_label = _make_label("MusicLabel", content, Vector2(162, 224), Vector2(204, 41), 24)
 
 	close_button = Button.new()
 	close_button.name = "Close"
@@ -127,7 +145,7 @@ func _build_ui() -> void:
 	close_art.scale = Vector2(83.0 / 143.0, 83.0 / 143.0)
 	close_button.add_child(close_art)
 	close_button.focus_mode = Control.FOCUS_ALL
-	close_button.tooltip_text = "Закрыть настройки"
+	close_button.tooltip_text = "Close settings"
 	content.add_child(close_button)
 	close_button.pressed.connect(close)
 	close_button.mouse_entered.connect(_highlight_close.bind(true))
@@ -149,21 +167,35 @@ func _build_ui() -> void:
 	game_slider.value_changed.connect(_on_game_volume_changed)
 	music_slider.value_changed.connect(_on_music_volume_changed)
 
-	var helper := Label.new()
-	helper.name = "SaveHint"
-	helper.position = Vector2(14, 306)
-	helper.size = Vector2(872, 24)
-	helper.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	helper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	helper.text = "Настройки сохраняются автоматически"
-	helper.add_theme_font_size_override("font_size", 15)
-	helper.add_theme_color_override("font_color", Color(0.58, 0.65, 0.72))
-	content.add_child(helper)
+	var language_row := Panel.new()
+	language_row.name = "LanguageRow"
+	language_row.position = Vector2(14, 310)
+	language_row.size = Vector2(872, 54)
+	language_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	language_row.add_theme_stylebox_override("panel", _button_style(PANEL_TINT, Color(0.18, 0.22, 0.27)))
+	content.add_child(language_row)
+	language_label = _make_label("LanguageLabel", content, Vector2(44, 316), Vector2(310, 42), 24)
+	language_selector = OptionButton.new()
+	language_selector.name = "LanguageSelector"
+	language_selector.position = Vector2(378, 316)
+	language_selector.size = Vector2(380, 42)
+	language_selector.add_item("English", 0)
+	language_selector.add_item("Русский", 1)
+	language_selector.add_theme_font_size_override("font_size", 22)
+	language_selector.add_theme_stylebox_override("normal", _button_style(Color(0.035, 0.09, 0.14), Color(0.2, 0.4, 0.55)))
+	language_selector.add_theme_stylebox_override("hover", _button_style(Color(0.06, 0.17, 0.25), Color(0.15, 0.65, 0.9)))
+	language_selector.add_theme_stylebox_override("focus", _focus_style())
+	content.add_child(language_selector)
+	language_selector.item_selected.connect(_select_language)
+
+	helper_label = _make_label("SaveHint", content, Vector2(14, 375), Vector2(872, 24), 15)
+	helper_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	helper_label.add_theme_color_override("font_color", Color(0.58, 0.65, 0.72))
 
 	done_button = Button.new()
 	done_button.name = "Done"
-	done_button.text = "Готово"
-	done_button.position = Vector2(350, 346)
+	done_button.text = "Done"
+	done_button.position = Vector2(350, 412)
 	done_button.size = Vector2(200, 48)
 	done_button.add_theme_font_size_override("font_size", 20)
 	done_button.add_theme_stylebox_override("normal", _button_style(Color(0.035, 0.09, 0.14), Color(0.12, 0.4, 0.61)))
@@ -175,12 +207,46 @@ func _build_ui() -> void:
 
 	game_slider.focus_next = music_slider.get_path()
 	game_slider.focus_previous = close_button.get_path()
-	music_slider.focus_next = done_button.get_path()
+	music_slider.focus_next = language_selector.get_path()
 	music_slider.focus_previous = game_slider.get_path()
+	language_selector.focus_next = done_button.get_path()
+	language_selector.focus_previous = music_slider.get_path()
 	done_button.focus_next = close_button.get_path()
-	done_button.focus_previous = music_slider.get_path()
+	done_button.focus_previous = language_selector.get_path()
 	close_button.focus_next = game_slider.get_path()
 	close_button.focus_previous = done_button.get_path()
+
+
+func _select_language(index: int) -> void:
+	Language.set_language("ru" if index == 1 else "en")
+
+
+func _refresh_language() -> void:
+	header_label.text = Language.text("settings")
+	audio_label.text = Language.text("audio")
+	game_label.text = Language.text("game_volume")
+	music_label.text = Language.text("music")
+	language_label.text = Language.text("language")
+	helper_label.text = Language.text("saved_automatically")
+	close_button.tooltip_text = Language.text("close_settings")
+	done_button.text = Language.text("done")
+	game_slider.tooltip_text = Language.text("game_volume")
+	music_slider.tooltip_text = Language.text("music")
+	language_selector.tooltip_text = Language.text("language")
+	language_selector.select(1 if Language.current_code == "ru" else 0)
+
+
+func _make_label(node_name: String, parent: Control, at: Vector2, dimensions: Vector2, font_size: int) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.position = at
+	label.size = dimensions
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", Color(0.96, 0.97, 0.99))
+	parent.add_child(label)
+	return label
 
 
 func _atlas(region: Rect2) -> AtlasTexture:

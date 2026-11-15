@@ -9,12 +9,15 @@ var settings_panel: Control
 var resume_button: Button
 var settings_button: Button
 var menu_button: Button
+var title_label: Label
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
 	_build_ui()
+	Language.language_changed.connect(_refresh_language)
+	_refresh_language()
 	get_node("/root/GameSession").scene_transition_started.connect(_on_scene_transition)
 
 
@@ -82,15 +85,15 @@ func _build_ui() -> void:
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 16)
 	card.add_child(rows)
-	var title := Label.new()
-	title.text = "ПАУЗА"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
-	title.custom_minimum_size.y = 58
-	rows.add_child(title)
-	resume_button = _button(rows, "Продолжить")
-	settings_button = _button(rows, "Настройки звука")
-	menu_button = _button(rows, "Главное меню")
+	title_label = Label.new()
+	title_label.name = "Title"
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 30)
+	title_label.custom_minimum_size.y = 58
+	rows.add_child(title_label)
+	resume_button = _button(rows, "Resume")
+	settings_button = _button(rows, "Audio settings")
+	menu_button = _button(rows, "Main menu")
 	resume_button.pressed.connect(resume_game)
 	menu_button.pressed.connect(_return_to_menu)
 	settings_panel = SETTINGS_SCENE.instantiate()
@@ -98,6 +101,13 @@ func _build_ui() -> void:
 	add_child(settings_panel)
 	settings_button.pressed.connect(settings_panel.open)
 	panel.hide()
+
+
+func _refresh_language() -> void:
+	title_label.text = Language.text("paused")
+	resume_button.text = Language.text("resume")
+	settings_button.text = Language.text("settings")
+	menu_button.text = Language.text("main_menu")
 
 
 func _button(parent: Node, message: String) -> Button:

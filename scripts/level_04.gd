@@ -14,17 +14,22 @@ var _return_pending: bool = false
 
 func _ready() -> void:
 	$HUD.layer = 10
-	$HUD/LevelTitle.text = "УРОВЕНЬ 04  /  ЛАБИРИНТ"
+	Language.language_changed.connect(_refresh_language)
 	$HUD/DeathCount.hide()
 	$HUD/Status.text = ""
-	$HUD/Controls.text = "W A S D или стрелки — движение     R — начать лабиринт заново"
-	$HUD/Completion/Card/Result.text = "Ты выбрался!\nИгра пройдена!"
-	replay_button.text = "Главное меню  ↵"
-	replay_button.pressed.connect(start_again)
+	_refresh_language()
+	replay_button.pressed.connect(return_to_menu)
 	$Exit.body_entered.connect(_on_exit_body_entered)
 	player.died.connect(restart_level)
 	flashlight.set_target(player)
 	restart_level()
+
+
+func _refresh_language() -> void:
+	$HUD/LevelTitle.text = Language.text("level_title") % level_number
+	$HUD/Controls.text = Language.text("maze_controls")
+	$HUD/Completion/Card/Result.text = Language.text("game_complete")
+	replay_button.text = Language.text("back_to_menu")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -32,7 +37,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		restart_level()
 		get_viewport().set_input_as_handled()
 	elif completed and event.is_action_pressed("ui_accept"):
-		start_again()
+		return_to_menu()
 		get_viewport().set_input_as_handled()
 
 
@@ -56,13 +61,13 @@ func _on_exit_body_entered(body: Node2D) -> void:
 	replay_button.grab_focus()
 
 
-func start_again() -> void:
+func return_to_menu() -> void:
 	if not completed or _return_pending:
 		return
 	_return_pending = true
-	_return_to_first_level.call_deferred()
+	_return_to_menu.call_deferred()
 
 
-func _return_to_first_level() -> void:
+func _return_to_menu() -> void:
 	if completed and _return_pending:
 		get_node("/root/GameSession").return_to_menu()

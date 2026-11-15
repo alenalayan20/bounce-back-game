@@ -19,14 +19,15 @@ var deaths: int = 0
 var completed: bool = false
 var _attempt_id: int = 0
 var _transition_pending: bool = false
+var _show_retry: bool = false
 
 
 func _ready() -> void:
-	$HUD/LevelTitle.text = "УРОВЕНЬ %02d  /  БЛОК А-1" % level_number
+	Language.language_changed.connect(_refresh_language)
 	player.died.connect(_on_player_died)
 	$Exit.body_entered.connect(_on_exit_body_entered)
 	replay_button.pressed.connect(continue_level)
-	replay_button.text = "Уровень %d  ↵" % (level_number + 1) if not next_level_path.is_empty() else "Ещё раз  ↵"
+	_refresh_language()
 	restart_level(true)
 
 
@@ -44,6 +45,7 @@ func restart_level(reset_deaths: bool = false) -> void:
 	_attempt_id += 1
 	completed = false
 	_transition_pending = false
+	_show_retry = false
 	if reset_deaths:
 		deaths = 0
 	if hidden_pit != null:
@@ -72,11 +74,7 @@ func continue_level() -> void:
 func _load_next_level() -> void:
 	if not completed or not _transition_pending:
 		return
-	var result := get_tree().change_scene_to_file(next_level_path)
-	if result != OK:
-		_transition_pending = false
-		status_label.text = "Не удалось открыть следующий уровень"
-		push_error("Could not open level: %s (error %d)" % [next_level_path, result])
+	get_node("/root/GameSession").change_scene(next_level_path)
 
 
 func _on_player_died() -> void:
@@ -86,7 +84,8 @@ func _on_player_died() -> void:
 		moving_saw.set_active(false)
 	deaths += 1
 	_update_death_count()
-	status_label.text = "Ещё попытка"
+	_show_retry = true
+	status_label.text = Language.text("retry_status")
 	var attempt_when_died: int = _attempt_id
 	await get_tree().create_timer(respawn_delay, false).timeout
 	if is_inside_tree() and attempt_when_died == _attempt_id:
@@ -101,9 +100,22 @@ func _on_exit_body_entered(body: Node2D) -> void:
 	if moving_saw != null:
 		moving_saw.set_active(false)
 	completion_panel.show()
-	$HUD/Completion/Card/Result.text = "Уровень %d пройден!\nСмертей: %d" % [level_number, deaths]
+	_update_completion_text()
 	replay_button.grab_focus()
 
 
 func _update_death_count() -> void:
-	death_label.text = "Смерти: %d" % deaths
+	death_label.text = Language.text("deaths") % deaths
+
+
+func _update_completion_text() -> void:
+	$HUD/Completion/Card/Result.text = Language.text("level_complete") % [level_number, deaths]
+
+
+func _refresh_language() -> void:
+	$HUD/LevelTitle.text = Language.text("level_title") % level_number
+	$HUD/Controls.text = Language.text("platform_controls")
+	replay_button.text = Language.text("next_level") % (level_number + 1) if not next_level_path.is_empty() else Language.text("replay")
+	status_label.text = Language.text("retry_status") if _show_retry else ""
+	_update_death_count()
+	_update_completion_text()

@@ -7,6 +7,13 @@ uniform float chain_speed : hint_range(0.1, 1.0) = 0.7;
 uniform vec4 long_chain_bounds = vec4(1078.0, 69.0, 1124.0, 282.0);
 uniform vec4 short_chain_bounds = vec4(1125.0, 69.0, 1167.0, 242.0);
 uniform bool hide_baked_saw = false;
+// Slow warning-lamp brightness is supplied by door_warning_lights.gd. The
+// mask follows source UVs, so the level-one door's enlarged lamp stays aligned.
+uniform vec2 warning_lamp_centers[4];
+uniform int warning_lamp_count = 0;
+uniform vec2 warning_lamp_half_size = vec2(16.0, 5.0);
+uniform float warning_lamp_glow_radius = 36.0;
+uniform float warning_lamp_brightness : hint_range(0.0, 1.0) = 1.0;
 
 varying vec4 item_modulate;
 
@@ -55,5 +62,23 @@ void fragment() {
 		vec4 clean_wall = texture(TEXTURE, vec2(p.x + 94.0, p.y) / size);
 		sampled = mix(sampled, clean_wall, saw_mask);
 	}
+	float warning_mask = 0.0;
+	for (int index = 0; index < 4; index++) {
+		if (index < warning_lamp_count) {
+			vec2 offset = source - warning_lamp_centers[index];
+			// Color-select the existing painted emission. A wide soft edge
+			// avoids a dim oval cutting across a still-bright glass strip.
+			float lens = 1.0 - smoothstep(0.65, 1.65, length(offset / warning_lamp_half_size));
+			float spill = 0.14 * exp(-4.0 * dot(offset / vec2(warning_lamp_glow_radius, warning_lamp_glow_radius * 0.65), offset / vec2(warning_lamp_glow_radius, warning_lamp_glow_radius * 0.65)));
+			float warm_pixels = smoothstep(0.045, 0.24, sampled.r - sampled.b)
+				* smoothstep(-0.015, 0.09, sampled.r - sampled.g);
+			warning_mask = max(warning_mask, max(lens, spill) * warm_pixels);
+		}
+	}
+	// Only color-selected warm emission changes. Retain a low reflected
+	// base in the glass; also dim the pale amber filament evenly so it does
+	// not turn gray as the red channels fade. Cool blue metal is unmasked.
+	vec3 warm_emission = max(sampled.rgb - vec3(0.10), vec3(0.0));
+	sampled.rgb -= warm_emission * ((1.0 - warning_lamp_brightness) * warning_mask);
 	COLOR = sampled * item_modulate;
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_04.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://art/levels/level_04.png" id="2_background"]
@@ -6,6 +6,9 @@
 [ext_resource type="PackedScene" path="res://scenes/maze_walls.tscn" id="4_walls"]
 [ext_resource type="PackedScene" path="res://scenes/maze_flashlight.tscn" id="5_flashlight"]
 [ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/door_warning_lights.gd" id="7_warning"]
+
+[ext_resource type="Script" path="res://scripts/common_exit_door.gd" id="20_common_door"]
 
 [sub_resource type="RectangleShape2D" id="ExitShape"]
 size = Vector2(64, 64)
@@ -39,6 +42,20 @@ position = Vector2(118, 128)
 position = Vector2(118, 128)
 
 [node name="Flashlight" parent="." instance=ExtResource("5_flashlight")]
+
+[node name="CommonExitDoor" type="Node" parent="."]
+script = ExtResource("20_common_door")
+level_number = 4
+
+[node name="DoorWarningLights" type="Node2D" parent="."]
+script = ExtResource("7_warning")
+lamp_positions = PackedVector2Array(1534, 781)
+background_path = NodePath("")
+baked_lamp_centers = PackedVector2Array()
+lamp_half_size = Vector2(18, 5)
+glow_radius = 32.0
+glow_intensity = 0.07
+emissive_lens = true
 
 [node name="Exit" type="Area2D" parent="."]
 position = Vector2(1534, 850)

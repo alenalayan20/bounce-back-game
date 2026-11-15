@@ -11,7 +11,7 @@ extends Area2D
 @export var animation_name: StringName = &"default"
 @export var visual_scale: Vector2 = Vector2.ONE
 @export var sound_stream: AudioStream
-@export var sound_volume_db: float = -8.0
+@export var sound_volume_db: float = -10.0
 
 @onready var visual: Node2D = $Visual
 @onready var sound: AudioStreamPlayer = $Sound

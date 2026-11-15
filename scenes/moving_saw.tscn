@@ -18,7 +18,7 @@ visual_scene = ExtResource("3_saw_animation")
 animation_name = &"saw"
 visual_scale = Vector2(0.175, 0.175)
 sound_stream = ExtResource("4_saw_sound")
-sound_volume_db = -5.0
+sound_volume_db = -10.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("BladeShape")
@@ -29,4 +29,4 @@ shape = SubResource("BladeShape")
 script = ExtResource("2_fallback")
 
 [node name="Sound" type="AudioStreamPlayer" parent="."]
-volume_db = -5.0
+volume_db = -10.0

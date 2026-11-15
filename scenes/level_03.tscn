@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_01.gd" id="1_controller"]
 [ext_resource type="Texture2D" path="res://art/levels/level_03.png" id="2_background"]
@@ -8,6 +8,9 @@
 [ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
 [ext_resource type="Shader" path="res://shaders/level_background.gdshader" id="7_shader"]
 [ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="8_lights"]
+[ext_resource type="Script" path="res://scripts/door_warning_lights.gd" id="9_warning"]
+
+[ext_resource type="Script" path="res://scripts/common_exit_door.gd" id="20_common_door"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("7_shader")
@@ -43,6 +46,16 @@ centered = false
 
 [node name="WindowLights" parent="." instance=ExtResource("8_lights")]
 window_origins = PackedVector2Array(306, 292, 651, 292, 974, 292)
+
+[node name="CommonExitDoor" type="Node" parent="."]
+script = ExtResource("20_common_door")
+level_number = 3
+
+[node name="DoorWarningLights" type="Node2D" parent="."]
+script = ExtResource("9_warning")
+lamp_positions = PackedVector2Array(1174, 373)
+baked_lamp_centers = PackedVector2Array(1174, 373)
+lamp_half_size = Vector2(22, 6)
 
 [node name="World" type="StaticBody2D" parent="."]
 collision_layer = 1

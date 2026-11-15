@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_01.gd" id="1_level"]
 [ext_resource type="Texture2D" path="res://art/levels/level_01_closed.png" id="2_closed"]
@@ -10,10 +10,13 @@
 [ext_resource type="PackedScene" path="res://scenes/ambience.tscn" id="8_ambience"]
 [ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://scenes/window_tracking_lights.tscn" id="10_lights"]
+[ext_resource type="Script" path="res://scripts/door_warning_lights.gd" id="11_warning"]
+
+[ext_resource type="Script" path="res://scripts/common_exit_door.gd" id="20_common_door"]
 
 [sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
 shader = ExtResource("7_background_shader")
-shader_parameter/door_scale = 1.15
+shader_parameter/door_scale = 1.0
 shader_parameter/chain_sway_pixels = 8.5
 shader_parameter/chain_speed = 0.7
 
@@ -61,6 +64,13 @@ centered = false
 [node name="LevelAmbience" parent="." instance=ExtResource("8_ambience")]
 
 [node name="WindowLights" parent="." instance=ExtResource("10_lights")]
+
+[node name="CommonExitDoor" type="Node" parent="."]
+script = ExtResource("20_common_door")
+level_number = 1
+
+[node name="DoorWarningLights" type="Node2D" parent="."]
+script = ExtResource("11_warning")
 
 [node name="World" type="StaticBody2D" parent="."]
 collision_layer = 1

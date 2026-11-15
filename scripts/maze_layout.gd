@@ -40,6 +40,9 @@ extends StaticBody2D
 	Rect2(966, 639, 42, 176),
 	Rect2(654, 620, 42, 196),
 	Rect2(207, 772, 1269, 44),
+	# Close the two marked shortcuts between the long wall and bottom border.
+	Rect2(654, 806, 42, 80),
+	Rect2(1434, 806, 42, 80),
 ]
 
 @export var keep_inside_image: bool = true
@@ -50,6 +53,7 @@ func _ready() -> void:
 	collision_mask = 2
 	for index in range(walls.size()):
 		_add_wall(walls[index], "Wall%02d" % (index + 1))
+	_add_bottom_closure_art()
 	if keep_inside_image:
 		# Door gaps lead to the picture's edge, never to an empty off-map area.
 		_add_wall(Rect2(-40, -40, 40, 1021), "BoundsLeft")
@@ -60,6 +64,25 @@ func _ready() -> void:
 
 func get_wall_rects() -> Array[Rect2]:
 	return walls.duplicate()
+
+
+func _add_bottom_closure_art() -> void:
+	# Continue the map's own vertical metalwork into the two new closures.
+	# Using original wall pixels keeps the material and flashlight response.
+	var texture := AtlasTexture.new()
+	texture.atlas = preload("res://art/levels/level_04.png")
+	texture.region = Rect2(650, 680, 50, 76)
+	texture.filter_clip = true
+	var positions := [Vector2(650, 802), Vector2(1430, 802)]
+	for index in range(positions.size()):
+		var art := Sprite2D.new()
+		art.name = "BottomClosureArt%d" % (index + 1)
+		art.texture = texture
+		art.centered = false
+		art.position = positions[index]
+		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		art.z_index = 1
+		add_child(art)
 
 
 func _add_wall(rect: Rect2, wall_name: String) -> void:
