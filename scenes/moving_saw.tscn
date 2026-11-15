@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/moving_saw.gd" id="1_motion"]
 [ext_resource type="Script" path="res://scripts/saw_fallback_visual.gd" id="2_fallback"]
 [ext_resource type="PackedScene" path="res://art/subjects/animations/saw/saw.tscn" id="3_saw_animation"]
-[ext_resource type="AudioStream" path="res://art/audio/saw.mp3" id="4_saw_sound"]
+[ext_resource type="AudioStream" path="res://audio 2/saw.mp3" id="4_saw_sound"]
 
 [sub_resource type="CircleShape2D" id="BladeShape"]
 radius = 25.0
@@ -18,7 +18,7 @@ visual_scene = ExtResource("3_saw_animation")
 animation_name = &"saw"
 visual_scale = Vector2(0.175, 0.175)
 sound_stream = ExtResource("4_saw_sound")
-sound_volume_db = -4.0
+sound_volume_db = -5.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("BladeShape")
@@ -28,7 +28,5 @@ shape = SubResource("BladeShape")
 [node name="Fallback" type="Node2D" parent="Visual"]
 script = ExtResource("2_fallback")
 
-[node name="Sound" type="AudioStreamPlayer2D" parent="."]
-volume_db = -8.0
-max_distance = 1600.0
-attenuation = 0.65
+[node name="Sound" type="AudioStreamPlayer" parent="."]
+volume_db = -5.0

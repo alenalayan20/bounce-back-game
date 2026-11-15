@@ -88,7 +88,7 @@ func _on_player_died() -> void:
 	_update_death_count()
 	status_label.text = "Ещё попытка"
 	var attempt_when_died: int = _attempt_id
-	await get_tree().create_timer(respawn_delay).timeout
+	await get_tree().create_timer(respawn_delay, false).timeout
 	if is_inside_tree() and attempt_when_died == _attempt_id:
 		restart_level()
 

@@ -33,6 +33,7 @@ size = Vector2(1600, 60)
 [node name="Level03" type="Node2D"]
 script = ExtResource("1_controller")
 level_number = 3
+next_level_path = "res://scenes/level_04.tscn"
 
 [node name="Background" type="Sprite2D" parent="."]
 material = SubResource("BackgroundMaterial")

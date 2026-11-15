@@ -1,0 +1,68 @@
+extends Node2D
+## Финальный лабиринт: движение сверху, фонарик и завершение всей игры.
+
+@onready var player: CharacterBody2D = $Player
+@onready var flashlight: Node2D = $Flashlight
+@onready var spawn_point: Marker2D = $SpawnPoint
+@onready var completion_panel: Control = $HUD/Completion
+@onready var replay_button: Button = $HUD/Completion/Card/Replay
+
+var level_number: int = 4
+var completed: bool = false
+var _return_pending: bool = false
+
+
+func _ready() -> void:
+	$HUD.layer = 10
+	$HUD/LevelTitle.text = "УРОВЕНЬ 04  /  ЛАБИРИНТ"
+	$HUD/DeathCount.hide()
+	$HUD/Status.text = ""
+	$HUD/Controls.text = "W A S D или стрелки — движение     R — начать лабиринт заново"
+	$HUD/Completion/Card/Result.text = "Ты выбрался!\nИгра пройдена!"
+	replay_button.text = "Главное меню  ↵"
+	replay_button.pressed.connect(start_again)
+	$Exit.body_entered.connect(_on_exit_body_entered)
+	player.died.connect(restart_level)
+	flashlight.set_target(player)
+	restart_level()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("restart"):
+		restart_level()
+		get_viewport().set_input_as_handled()
+	elif completed and event.is_action_pressed("ui_accept"):
+		start_again()
+		get_viewport().set_input_as_handled()
+
+
+func restart_level(_reset_deaths: bool = false) -> void:
+	completed = false
+	_return_pending = false
+	completion_panel.hide()
+	player.respawn(spawn_point.global_position)
+	flashlight.set_target(player)
+
+
+func _on_exit_body_entered(body: Node2D) -> void:
+	if body != player or completed or player.dead:
+		return
+	# Ignore an old physics event if R teleported the hero back to the entrance.
+	if player.global_position.distance_to($Exit.global_position) > 72.0:
+		return
+	completed = true
+	player.finish()
+	completion_panel.show()
+	replay_button.grab_focus()
+
+
+func start_again() -> void:
+	if not completed or _return_pending:
+		return
+	_return_pending = true
+	_return_to_first_level.call_deferred()
+
+
+func _return_to_first_level() -> void:
+	if completed and _return_pending:
+		get_node("/root/GameSession").return_to_menu()

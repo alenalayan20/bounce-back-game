@@ -14,7 +14,7 @@ extends Area2D
 @export var sound_volume_db: float = -8.0
 
 @onready var visual: Node2D = $Visual
-@onready var sound: AudioStreamPlayer2D = $Sound
+@onready var sound: AudioStreamPlayer = $Sound
 @onready var blade_collider: CollisionShape2D = $CollisionShape2D
 
 var direction: float = 1.0

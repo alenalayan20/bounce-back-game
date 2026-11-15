@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://resources/side_frames.tres" id="2_frames"]
-[ext_resource type="AudioStream" path="res://audio/death.mp3" id="3_death"]
-[ext_resource type="AudioStream" path="res://audio/walk.mp3" id="4_walk"]
-[ext_resource type="AudioStream" path="res://audio/jump.mp3" id="5_jump"]
+[ext_resource type="AudioStream" path="res://audio/sfx/death_impact.wav" id="3_death"]
+[ext_resource type="AudioStream" path="res://audio/sfx/footstep_01.wav" id="4_walk"]
+[ext_resource type="AudioStream" path="res://audio/sfx/jump_soft.wav" id="5_jump"]
+[ext_resource type="Script" path="res://scripts/footstep_player.gd" id="6_steps"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 13.0
@@ -31,12 +32,13 @@ shape = SubResource("CapsuleShape2D_player")
 
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_death")
-volume_db = 16.0
+volume_db = -1.0
 
 [node name="WalkSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_walk")
-volume_db = 12.0
+volume_db = -1.0
+script = ExtResource("6_steps")
 
 [node name="JumpSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_jump")
-volume_db = -4.0
+volume_db = -1.0

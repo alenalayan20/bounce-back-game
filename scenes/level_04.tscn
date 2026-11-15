@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/level_04.gd" id="1_controller"]
+[ext_resource type="Texture2D" path="res://art/levels/level_04.png" id="2_background"]
+[ext_resource type="PackedScene" path="res://scenes/maze_player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/maze_walls.tscn" id="4_walls"]
+[ext_resource type="PackedScene" path="res://scenes/maze_flashlight.tscn" id="5_flashlight"]
+[ext_resource type="PackedScene" path="res://scenes/level_hud.tscn" id="6_hud"]
+
+[sub_resource type="RectangleShape2D" id="ExitShape"]
+size = Vector2(64, 64)
+
+[sub_resource type="RectangleShape2D" id="EntranceBlock"]
+size = Vector2(110, 24)
+
+[node name="Level04" type="Node2D"]
+scale = Vector2(0.76555024, 0.76514345)
+script = ExtResource("1_controller")
+
+[node name="Background" type="Sprite2D" parent="."]
+texture_filter = 2
+texture = ExtResource("2_background")
+centered = false
+
+[node name="MazeWalls" parent="." instance=ExtResource("4_walls")]
+
+[node name="EntranceBlock" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntranceBlock"]
+position = Vector2(118, 24)
+shape = SubResource("EntranceBlock")
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(118, 128)
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(118, 128)
+
+[node name="Flashlight" parent="." instance=ExtResource("5_flashlight")]
+
+[node name="Exit" type="Area2D" parent="."]
+position = Vector2(1534, 850)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
+shape = SubResource("ExitShape")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

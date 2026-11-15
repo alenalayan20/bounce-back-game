@@ -25,9 +25,6 @@ var _death_tween: Tween
 func _ready() -> void:
 	add_to_group("player")
 	sprite.play(&"idle")
-	var walking_stream := walk_sound.stream as AudioStreamMP3
-	if walking_stream != null:
-		walking_stream.loop = true
 
 
 func _physics_process(delta: float) -> void:
@@ -62,7 +59,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_update_animation()
-	_update_walk_sound()
+	_update_walk_sound(delta)
 	if global_position.y > 800.0:
 		die()
 
@@ -79,21 +76,17 @@ func _update_animation() -> void:
 		sprite.play(animation_name)
 
 
-func _update_walk_sound() -> void:
+func _update_walk_sound(delta: float) -> void:
 	# Actual velocity avoids playing footsteps while pushing into a wall.
 	var walking := not dead and not finished and is_on_floor() and absf(get_real_velocity().x) > 10.0
-	if walking:
-		if not walk_sound.playing:
-			walk_sound.play()
-	elif walk_sound.playing:
-		walk_sound.stop()
+	walk_sound.call("update_steps", absf(get_real_velocity().x) * delta, walking)
 
 
 func die() -> void:
 	if dead or finished:
 		return
 	dead = true
-	walk_sound.stop()
+	walk_sound.call("reset_steps")
 	jump_sound.stop()
 	death_sound.play()
 	velocity = Vector2.ZERO
@@ -107,7 +100,7 @@ func die() -> void:
 
 
 func respawn(at: Vector2) -> void:
-	walk_sound.stop()
+	walk_sound.call("reset_steps")
 	jump_sound.stop()
 	# Let the short death clip finish naturally across the quick respawn.
 	if _death_tween != null and _death_tween.is_valid():
@@ -129,7 +122,7 @@ func finish() -> void:
 	if dead or finished:
 		return
 	finished = true
-	walk_sound.stop()
+	walk_sound.call("reset_steps")
 	jump_sound.stop()
 	velocity = Vector2.ZERO
 	_jump_buffer_left = 0.0

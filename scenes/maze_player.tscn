@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/maze_player.gd" id="1_controller"]
+[ext_resource type="SpriteFrames" path="res://resources/topdown_frames.tres" id="2_frames"]
+[ext_resource type="AudioStream" path="res://audio/sfx/footstep_01.wav" id="3_steps"]
+[ext_resource type="Script" path="res://scripts/footstep_player.gd" id="4_steps_script"]
+
+[sub_resource type="CircleShape2D" id="BodyShape"]
+radius = 17.0
+
+[node name="MazePlayer" type="CharacterBody2D"]
+motion_mode = 1
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_controller")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.18, 0.18)
+sprite_frames = ExtResource("2_frames")
+animation = &"1d_run"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("BodyShape")
+
+[node name="WalkSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_steps")
+volume_db = -2.0
+script = ExtResource("4_steps_script")
+step_distance = 124.0
